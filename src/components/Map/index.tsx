@@ -1,5 +1,5 @@
 import { useRouter } from 'next/dist/client/router'
-import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet'
 
 export type Place = {
   id: string
@@ -13,6 +13,46 @@ export type Place = {
 
 export type MapProps = {
   places?: Place[]
+  polyline?: [number, number][]
+}
+
+const Map = ({ places, polyline = [] }: MapProps) => {
+  const router = useRouter()
+
+  return (
+    <MapContainer
+      center={[0, 0]}
+      zoom={3}
+      scrollWheelZoom={true}
+      style={{ width: '100%', height: '100%' }}
+    >
+      {polyline.length > 0 && (
+        <Polyline
+          color="var(--polyline)"
+          weight={4}
+          opacity={0.5}
+          smoothFactor={1}
+          positions={polyline}
+        />
+      )}
+      <CustomTileLayer />
+      {places?.map(({ id, slug, name, location }) => {
+        const { latitude, longitude } = location
+        return (
+          <Marker
+            key={`place-${id}`}
+            title={name}
+            position={[latitude, longitude]}
+            eventHandlers={{
+              click: () => {
+                router.push(`/place/${slug}`)
+              }
+            }}
+          />
+        )
+      })}
+    </MapContainer>
+  )
 }
 
 //Adiciona o NEXT_PUBIC_ no inicio do nome da variável para poder expor as variáveis do env, no front
@@ -31,35 +71,6 @@ const CustomTileLayer = () => {
       attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     />
-  )
-}
-
-const Map = ({ places }: MapProps) => {
-  const router = useRouter()
-  return (
-    <MapContainer
-      center={[0, 0]}
-      zoom={3}
-      scrollWheelZoom={true}
-      style={{ width: '100%', height: '100%' }}
-    >
-      <CustomTileLayer />
-      {places?.map(({ id, slug, name, location }) => {
-        const { latitude, longitude } = location
-        return (
-          <Marker
-            key={`place-${id}`}
-            title={name}
-            position={[latitude, longitude]}
-            eventHandlers={{
-              click: () => {
-                router.push(`/place/${slug}`)
-              }
-            }}
-          />
-        )
-      })}
-    </MapContainer>
   )
 }
 

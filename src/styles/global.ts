@@ -10,6 +10,7 @@ const GlobalStyles = createGlobalStyle`
     --small: 1.5rem;
     --medium: 3rem;
     --large: 5rem;
+    --polyline: #befc03;
   }
 
   * {
